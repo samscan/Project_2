@@ -223,8 +223,8 @@ void lightLevelUpdate()
 {
     float lightLevelValue = lightLevel.read();
     if(lightLevelValue <= 0.333) {
-        if(accumulatedHeadlightDelay >= 1000) {
-            headlightON();
+        if(accumulatedHeadlightDelay >= 2000) {
+            headlightOFF();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
@@ -232,8 +232,8 @@ void lightLevelUpdate()
         accumulatedHeadlightDelay = 0;
     }
     if(0.667 < lightLevelValue) {
-        if(accumulatedHeadlightDelay >= 2000) {
-            headlightOFF();
+        if(accumulatedHeadlightDelay >= 1000) {
+            headlightON();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
