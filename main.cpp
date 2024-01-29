@@ -14,12 +14,6 @@ typedef enum {
 } buttonState_t;
 
 typedef enum {
-    ON_SELECTED, 
-    OFF_SELECTED,
-    AUTO_SELECTED
-} headlightSelection_t;
-
-typedef enum {
     DAYLIGHT,
     DUSK,
     BETWEEN
@@ -40,7 +34,6 @@ DigitalOut engine(LED2);
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
 buttonState_t ignitionButtonState;
-headlightSelection_t headlightState;
 lightLevelState_t lightLevelState;
 
 int accumulatedDebounceButtonTime = 0;
@@ -180,20 +173,16 @@ void headlightUpdate()
     if(engine) {
         float headlightModeValue = headlightMode.read();
         if(headlightModeValue <= 0.333) {
-            headlightState = ON_SELECTED;
             headlightON();
         }
         if(0.333 < headlightModeValue && headlightModeValue <= 0.667) {
-            headlightState = OFF_SELECTED;
             headlightOFF();
         }
         if (0.667 < headlightModeValue) {
-            headlightState = AUTO_SELECTED;
             headlightAUTO();
         }
     }
     else {
-        headlightState = OFF_SELECTED;
         headlightOFF();
     }
 }
