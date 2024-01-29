@@ -13,9 +13,6 @@ typedef enum {
     BUTTON_RISING
 } buttonState_t;
 
-int accumulatedDebounceButtonTime       = 0;
-int pressed                            = 0;
-
 DigitalIn driverSeat(D2);
 DigitalIn ignition(D6);
 
@@ -26,16 +23,20 @@ DigitalOut leftHeadlight(D8);
 DigitalOut rightHeadlight(D9);
 DigitalOut lowBeams(D10);
 DigitalOut highBeams(D11);
-DigitalOut Engine(LED2);
+DigitalOut engine(LED2);
 
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
-buttonState_t IgnitionButtonState;
+buttonState_t ignitionButtonState;
+
+int accumulatedDebounceButtonTime = 0;
+int ignitionPressedDebounceTime = 0;
 
 void inputsInit();
 void outputsInit();
-void startEngine();
-void stopEngine();
+void engineUpdate();
+void checkStartEngine();
+void checkStopEngine();
 void debounceButtonInit();
 bool debounceButtonUpdate();
 
@@ -44,9 +45,7 @@ int main()
     inputsInit();
     outputsInit();
     while (true){
-        startEngine();
-        
-        //stopEngine();
+        engineUpdate();
         delay(TIME_INCREMENT_MS);
     }
 }
@@ -63,35 +62,45 @@ void outputsInit()
     rightHeadlight = OFF;
     lowBeams = OFF;
     highBeams = OFF;
+    engine = OFF;
 }
 
-void startEngine(){
-    bool IgnitionButtonReleasedEvent = debounceButtonUpdate();
-    if(driverSeat && !Engine && IgnitionButtonReleasedEvent){
-        pressed += 1;
-        Engine = ON;
+void engineUpdate() {
+    if(!engine) {
+        checkStartEngine();
+    }
+    else {
+        checkStopEngine();
+    }
+    ignitionPressedDebounceTime = ignitionPressedDebounceTime + TIME_INCREMENT_MS;
+}
+
+void checkStartEngine(){
+    bool ignitionButtonReleasedEvent = debounceButtonUpdate();
+    if(driverSeat && ignitionButtonReleasedEvent && ignitionPressedDebounceTime >= DEBOUNCE_BUTTON_TIME_MS){
+
+        engine = ON;
+        ignitionPressedDebounceTime = 0;
     }
     
 }
 
-void stopEngine(){
-    bool IgnitionButtonReleasedEvent = debounceButtonUpdate();
-    if(Engine && IgnitionButtonReleasedEvent){
-    
-        Engine = OFF;
-        pressed = 0;
+void checkStopEngine(){
+    bool ignitionButtonReleasedEvent = debounceButtonUpdate();
+    if(ignitionButtonReleasedEvent && ignitionPressedDebounceTime >= DEBOUNCE_BUTTON_TIME_MS){
+        engine = OFF;
+        ignitionPressedDebounceTime = 0;
     }
-
 }
 
 bool debounceButtonUpdate()
 {
     bool ignitionReleasedEvent = false;
-    switch( IgnitionButtonState ) {
-
+    switch( ignitionButtonState ) {
+    
     case BUTTON_UP:
         if( ignition == 1 ) {
-            IgnitionButtonState = BUTTON_FALLING;
+            ignitionButtonState = BUTTON_FALLING;
             accumulatedDebounceButtonTime = 0;
         }
         break;
@@ -99,9 +108,9 @@ bool debounceButtonUpdate()
     case BUTTON_FALLING:
         if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
             if( ignition == 1 ) {
-                IgnitionButtonState = BUTTON_DOWN;
+                ignitionButtonState = BUTTON_DOWN;
             } else {
-                IgnitionButtonState = BUTTON_UP;
+                ignitionButtonState = BUTTON_UP;
             }
         }
         accumulatedDebounceButtonTime = accumulatedDebounceButtonTime +
@@ -110,7 +119,7 @@ bool debounceButtonUpdate()
 
     case BUTTON_DOWN:
         if( ignition == 0 ) {
-            IgnitionButtonState = BUTTON_RISING;
+            ignitionButtonState = BUTTON_RISING;
             accumulatedDebounceButtonTime = 0;
         }
         break;
@@ -118,13 +127,11 @@ bool debounceButtonUpdate()
     case BUTTON_RISING:
         if( accumulatedDebounceButtonTime >= DEBOUNCE_BUTTON_TIME_MS ) {
             if( ignition == 0 ) {
-                IgnitionButtonState = BUTTON_UP;
+                ignitionButtonState = BUTTON_UP;
                 ignitionReleasedEvent = true;
-                //yyyy
+                uartUsb.write( "yes\r\n", 5);
             } else {
-                IgnitionButtonState = BUTTON_DOWN;
-                //yyy
-        
+                ignitionButtonState = BUTTON_DOWN;
             }
         }
         accumulatedDebounceButtonTime = accumulatedDebounceButtonTime +
@@ -141,8 +148,8 @@ bool debounceButtonUpdate()
 void debounceButtonInit()
 {
     if( ignition == 1) {
-        IgnitionButtonState = BUTTON_UP;
+        ignitionButtonState = BUTTON_UP;
     } else {
-        IgnitionButtonState = BUTTON_DOWN;
+        ignitionButtonState = BUTTON_DOWN;
     }
 }
