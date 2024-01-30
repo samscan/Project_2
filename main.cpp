@@ -217,10 +217,10 @@ void lightLevelUpdate()
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
-    if(0.636 < lightLevelValue && lightLevelValue <= 0.788) {
+    if(0.636 < lightLevelValue && lightLevelValue <= 0.828) {
         accumulatedHeadlightDelay = 0;
     }
-    if(0.788 < lightLevelValue) {
+    if(0.828 < lightLevelValue) {
         if(accumulatedHeadlightDelay >= 2000) {
             headlightOFF();
         }
