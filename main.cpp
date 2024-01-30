@@ -211,18 +211,18 @@ void headlightAUTO()
 void lightLevelUpdate()
 {
     float lightLevelValue = lightLevel.read();
-    if(lightLevelValue <= 0.333) {
-        if(accumulatedHeadlightDelay >= 2000) {
-            headlightOFF();
+    if(lightLevelValue <= 0.636) {
+        if(accumulatedHeadlightDelay >= 1000) {
+            headlightON();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
-    if(0.333 < lightLevelValue && lightLevelValue <= 0.667) {
+    if(0.636 < lightLevelValue && lightLevelValue <= 0.788) {
         accumulatedHeadlightDelay = 0;
     }
-    if(0.667 < lightLevelValue) {
-        if(accumulatedHeadlightDelay >= 1000) {
-            headlightON();
+    if(0.788 < lightLevelValue) {
+        if(accumulatedHeadlightDelay >= 2000) {
+            headlightOFF();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
