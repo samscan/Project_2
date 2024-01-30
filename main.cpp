@@ -4,6 +4,8 @@
 
 #define TIME_INCREMENT_MS                       10
 #define DEBOUNCE_BUTTON_TIME_MS                 40
+#define DAYLIGHT_LEVEL                          0.828
+#define DUSK_LEVEL                              0.636
 
 
 typedef enum {
@@ -211,16 +213,16 @@ void headlightAUTO()
 void lightLevelUpdate()
 {
     float lightLevelValue = lightLevel.read();
-    if(lightLevelValue <= 0.636) {
+    if(lightLevelValue <= DUSK_LEVEL) {
         if(accumulatedHeadlightDelay >= 1000) {
             headlightON();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
-    if(0.636 < lightLevelValue && lightLevelValue <= 0.828) {
+    if(DUSK_LEVEL < lightLevelValue && lightLevelValue <= DAYLIGHT_LEVEL) {
         accumulatedHeadlightDelay = 0;
     }
-    if(0.828 < lightLevelValue) {
+    if(DAYLIGHT_LEVEL < lightLevelValue) {
         if(accumulatedHeadlightDelay >= 2000) {
             headlightOFF();
         }
