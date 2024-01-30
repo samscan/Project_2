@@ -53,7 +53,6 @@ void headlightUpdate();
 void headlightON();
 void headlightOFF();
 void headlightAUTO();
-void lightLevelUpdate();
 
 int main() 
 {
@@ -206,11 +205,6 @@ void headlightOFF()
 }
 
 void headlightAUTO() 
-{
-    lightLevelUpdate();
-}
-
-void lightLevelUpdate()
 {
     float lightLevelValue = lightLevel.read();
     if(lightLevelValue <= DUSK_LEVEL) {
