@@ -53,6 +53,7 @@ void headlightUpdate();
 void headlightON();
 void headlightOFF();
 void headlightAUTO();
+void lightLevelUpdate();
 
 int main() 
 {
@@ -206,20 +207,34 @@ void headlightOFF()
 
 void headlightAUTO() 
 {
-    float lightLevelValue = lightLevel.read();
-    if(lightLevelValue <= DUSK_LEVEL) {
-        if(accumulatedHeadlightDelay >= 1000) {
+    lightLevelUpdate();
+    if (lightLevelState == DUSK) {
+        if (accumulatedHeadlightDelay >= 1000) {
             headlightON();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
     }
-    if(DUSK_LEVEL < lightLevelValue && lightLevelValue <= DAYLIGHT_LEVEL) {
+    if (lightLevelState == BETWEEN) {
         accumulatedHeadlightDelay = 0;
     }
-    if(DAYLIGHT_LEVEL < lightLevelValue) {
+    if (lightLevelState == DAYLIGHT) {
         if(accumulatedHeadlightDelay >= 2000) {
             headlightOFF();
         }
         accumulatedHeadlightDelay = accumulatedHeadlightDelay + TIME_INCREMENT_MS;
+    }
+}
+
+void lightLevelUpdate()
+{
+    float lightLevelValue = lightLevel.read();
+    if(lightLevelValue <= DUSK_LEVEL) {
+        lightLevelState = DUSK;
+    }
+    if(DUSK_LEVEL < lightLevelValue && lightLevelValue <= DAYLIGHT_LEVEL) {
+        lightLevelState = BETWEEN;
+    }
+    if(DAYLIGHT_LEVEL < lightLevelValue) {
+        lightLevelState = DAYLIGHT;
     }
 }
