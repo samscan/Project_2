@@ -23,6 +23,7 @@ typedef enum {
 
 DigitalIn driverSeat(D2);
 DigitalIn ignition(D6);
+DigitalIn highBeamSwitch(D12);
 
 AnalogIn headlightMode(A0);
 AnalogIn lightLevel(A3);
@@ -54,6 +55,7 @@ void headlightON();
 void headlightOFF();
 void headlightAUTO();
 void lightLevelUpdate();
+void highBeamsUpdate();
 
 int main() 
 {
@@ -187,6 +189,7 @@ void headlightUpdate()
     else {
         headlightOFF();
     }
+    highBeamsUpdate();
 }
 
 void headlightON()
@@ -236,5 +239,19 @@ void lightLevelUpdate()
     }
     if(DAYLIGHT_LEVEL < lightLevelValue) {
         lightLevelState = DAYLIGHT;
+    }
+}
+
+void highBeamsUpdate() 
+{
+    if (leftLowBeam && rightLowBeam) {
+        if (highBeamSwitch == ON) {
+            rightHighBeam = ON;
+            leftHighBeam = ON;
+        }
+        else {
+            rightHighBeam = OFF;
+            leftHighBeam = OFF;
+      }
     }
 }
